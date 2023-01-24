@@ -1,9 +1,10 @@
-import os
+import speech_recognition as sr
 import openai
-import gradio as gr
 from playsound import playsound
 from gtts import gTTS
-import speech_recognition as sr
+import cv2
+import pytesseract
+import gradio as gr
 
 
 openai.api_key = "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"
@@ -64,6 +65,29 @@ def voice():
         print(ex)
     return text
 
+def imagetotext(inp):
+    img = cv2.imread(inp)
+    config = ('-l eng --oem 1 --psm 3')
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
+    ret, threshimg = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV) 
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18)) 
+    dilation = cv2.dilate(threshimg, rect_kernel, iterations = 1) 
+    img_contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,  
+                                                        cv2.CHAIN_APPROX_NONE) 
+    maintext = ''
+    for cnt in img_contours: 
+        x, y, w, h = cv2.boundingRect(cnt) 
+
+        rect = cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)  
+        cropped_img = img[y:y + h, x:x + w] 
+ 
+        file = open("recognized.txt", "w") 
+        pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+        text = pytesseract.image_to_string(cropped_img) 
+
+        maintext = maintext+text
+    return maintext
+
 block = gr.Blocks()
 
 
@@ -73,9 +97,13 @@ with block:
     chatbot = gr.Chatbot()
     message = gr.Textbox(placeholder=prompt)
     state = gr.State()
-    voicef = gr.Button("VOICE")
+    imagef = gr.Image(type="filepath")
+    btnf = gr.Button("Upload Query")
+    btnf.click(imagetotext, inputs=imagef,outputs=message)
+    voicef = gr.Button("VOICE Query")
     voicef.click(voice, outputs=message)
-    submit = gr.Button("SEND")
+    submit = gr.Button("EXECUTE")
     submit.click(chatgpt_clone, inputs=[message, state], outputs=[chatbot, state])
+    
 
 block.launch(debug = True)
