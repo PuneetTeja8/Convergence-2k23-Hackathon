@@ -76,15 +76,15 @@ def outvoice(history):
             return regex.sub('', string)
         new_text=remove_html(history[-1][1])
         myobj = gTTS(text=new_text, lang=language, slow=False)
-        myobj.save("C:\\Users\\abboj\\Downloads\\Hackathon-main\\Hackathon-main\\welcome.mp3")
-        playsound('C:\\Users\\abboj\\Downloads\\Hackathon-main\\Hackathon-main\\welcome.mp3')
-        os.remove('C:\\Users\\abboj\\Downloads\\Hackathon-main\\Hackathon-main\\welcome.mp3')
+        myobj.save("welcome.mp3")
+        playsound('welcome.mp3')
+        os.remove('welcome.mp3')
     else:
         language = 'en'
         myobj = gTTS(text="No data present", lang=language, slow=False)
         myobj.save("welcome.mp3")
-        playsound('C:\\Users\\abboj\\Downloads\\Hackathon-main\\Hackathon-main\\welcome.mp3')
-        os.remove('C:\\Users\\abboj\\Downloads\\Hackathon-main\\Hackathon-main\\welcome.mp3')
+        playsound('welcome.mp3')
+        os.remove('welcome.mp3')
     
 
 
